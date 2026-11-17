@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Guangzhou + Chaoshan 2026</title>
+<style>
+:root{
+  /* Lingnan palette: jade-ink green, seal vermilion, grey-jade paper. Layout: sticky day strip + timeline, bottom tab bar for thumbs. */
+  --bg:#eef2f0; --surface:#ffffff; --ink:#15211e; --muted:#5d6b67; --line:#d5dfdb;
+  --jade:#0e5b52; --jade-soft:#dcebe6; --seal:#c23a22; --seal-soft:#f8e3dc; --gold:#a8741a; --gold-soft:#f5ead2;
+  --font-display:"Young Serif", "Songti SC", "Noto Serif SC", Georgia, serif;
+  --font-body:"IBM Plex Sans", -apple-system, "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+  --radius:14px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1715; --surface:#17221f; --ink:#e6eeeb; --muted:#9aaba6; --line:#2a3833;
+    --jade:#5cc2b0; --jade-soft:#1d3631; --seal:#f07a5f; --seal-soft:#3a221c; --gold:#e0b25c; --gold-soft:#34291a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1715; --surface:#17221f; --ink:#e6eeeb; --muted:#9aaba6; --line:#2a3833;
+  --jade:#5cc2b0; --jade-soft:#1d3631; --seal:#f07a5f; --seal-soft:#3a221c; --gold:#e0b25c; --gold-soft:#34291a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--jade);outline-offset:2px;border-radius:6px}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px}
+
+/* header */
+header.top{padding-top:calc(18px + env(safe-area-inset-top));padding-bottom:10px}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-family:var(--font-display);font-weight:400;font-size:28px;line-height:1.15;margin:4px 0 8px;text-wrap:balance}
+h1 .zh{color:var(--seal)}
+.status{display:inline-flex;align-items:center;gap:8px;background:var(--jade-soft);color:var(--jade);font-weight:600;font-size:13px;padding:6px 12px;border-radius:999px}
+.status .dot{width:8px;height:8px;border-radius:50%;background:var(--jade)}
+
+/* day strip */
+.strip{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0 10px;border-bottom:1px solid var(--line)}
+.strip-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:0 16px;max-width:640px;margin:0 auto;scroll-snap-type:x proximity}
+.strip-scroll::-webkit-scrollbar{display:none}
+.daychip{flex:0 0 auto;scroll-snap-align:center;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 10px;min-width:58px;text-align:center;cursor:pointer;position:relative}
+.daychip b{display:block;font-family:var(--font-display);font-weight:400;font-size:18px;line-height:1.2}
+.daychip span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.daychip[aria-selected="true"]{background:var(--jade);border-color:var(--jade);color:#fff}
+.daychip[aria-selected="true"] span{color:rgba(255,255,255,.8)}
+:root[data-theme="dark"] .daychip[aria-selected="true"],:root[data-theme="dark"] .daychip[aria-selected="true"] span{color:#0f1715}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .daychip[aria-selected="true"],:root:not([data-theme="light"]) .daychip[aria-selected="true"] span{color:#0f1715}}
+.daychip.today::after{content:"";position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--seal)}
+
+/* day header */
+.dayhead{padding:18px 0 6px}
+.dayhead h2{font-family:var(--font-display);font-weight:400;font-size:24px;margin:2px 0 4px;text-wrap:balance}
+.dayhead .city{display:inline-block;font-size:12px;font-weight:600;color:var(--seal);background:var(--seal-soft);padding:2px 8px;border-radius:6px;margin-right:6px}
+.dayhead .summary{color:var(--muted);font-size:14px;margin:6px 0 0}
+.daynav{display:flex;justify-content:space-between;gap:8px;margin:18px 0 8px}
+.daynav button{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px;cursor:pointer;font-weight:500;font-size:14px}
+.daynav button:disabled{opacity:.35;cursor:default}
+
+/* timeline */
+.tl{list-style:none;margin:10px 0 0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;left:52px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.stop{display:grid;grid-template-columns:44px 1fr;gap:16px;padding:0 0 14px;position:relative}
+.stop .time{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--muted);text-align:right;padding-top:14px;line-height:1.2}
+.stop .time small{display:block;font-weight:500;font-size:11px;text-transform:lowercase}
+.stop::after{content:"";position:absolute;left:46px;top:17px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--muted)}
+.stop.t-food::after{border-color:var(--seal)}
+.stop.t-sight::after{border-color:var(--jade)}
+.stop.t-shop::after{border-color:var(--gold)}
+.stop.t-move::after{border-color:var(--muted)}
+.stop.t-stay::after{border-color:var(--jade);background:var(--jade)}
+.stop.now::after{background:var(--seal);border-color:var(--seal);box-shadow:0 0 0 4px var(--seal-soft)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;min-width:0}
+.stop.now .card{border-color:var(--seal);box-shadow:0 0 0 1px var(--seal)}
+.card-h{display:block;width:100%;text-align:left;background:none;border:0;padding:12px 14px;cursor:pointer}
+.card-h .title{font-weight:600;font-size:16px;line-height:1.3;display:block}
+.card-h .zh{font-size:14px;color:var(--muted);display:block;margin-top:1px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.tag.res{background:var(--seal-soft);color:var(--seal);border-color:transparent}
+.tag.tix{background:var(--jade-soft);color:var(--jade);border-color:transparent}
+.tag.who{background:var(--gold-soft);color:var(--gold);border-color:transparent}
+.tag.now{background:var(--seal);color:#fff;border-color:transparent}
+.card-h .chev{float:right;margin-left:8px;color:var(--muted);transition:transform .2s}
+.card.open .chev{transform:rotate(180deg)}
+.card-b{display:none;padding:0 14px 14px;border-top:1px dashed var(--line)}
+.card.open .card-b{display:block}
+.card-b p{margin:10px 0 0}
+.card-b ul{margin:8px 0 0;padding-left:18px}
+.card-b li{margin:3px 0}
+.meta{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin-top:10px;font-size:13.5px}
+.meta dt{color:var(--muted)}
+.meta dd{margin:0}
+.addr{margin-top:10px;font-size:13.5px;background:var(--bg);border-radius:10px;padding:8px 10px}
+.addr .zhaddr{display:block;margin-top:3px;color:var(--muted)}
+.go{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);padding:0 14px 10px}
+.go svg{flex:0 0 auto}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;font-size:13.5px;font-weight:500;cursor:pointer;text-decoration:none;color:var(--ink);min-height:38px}
+.btn.primary{background:var(--jade);border-color:var(--jade);color:#fff}
+:root[data-theme="dark"] .btn.primary{color:#0f1715}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:#0f1715}}
+.btn svg{flex:0 0 auto}
+.places{display:grid;gap:8px;margin-top:10px}
+.place{border:1px solid var(--line);border-radius:10px;padding:10px}
+.place b{font-weight:600}
+.place .zh{color:var(--muted);font-size:13.5px;margin-left:4px}
+.place .n{font-size:13.5px;margin-top:2px}
+.place .actions{margin-top:8px}
+.place .btn{padding:6px 10px;min-height:34px;font-size:13px}
+
+.refs{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.refs dt{display:none}
+.refs .ref{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.refs .ref span{font-size:11.5px;color:var(--muted)}
+.refbtn{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--jade-soft);color:var(--jade);border-radius:8px;padding:3px 8px;font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;cursor:pointer;white-space:nowrap;text-align:left}
+.seats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.seats div{background:var(--bg);border-radius:8px;padding:6px 8px}
+.seats span{display:block;font-size:11.5px;color:var(--muted)}
+.seats b{font-variant-numeric:tabular-nums;font-size:15px}
+.mepick{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px}
+.mepick span{font-size:12.5px;color:var(--muted);margin-right:2px}
+.mechip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px;font-size:13px;font-weight:500;cursor:pointer;min-height:32px}
+.mechip[aria-pressed="true"]{background:var(--seal);border-color:var(--seal);color:#fff}
+.myseat{margin-top:10px;background:var(--seal-soft);color:var(--seal);border-radius:10px;padding:8px 10px;font-size:14px;font-weight:500}
+.myseat b{font-size:17px;font-variant-numeric:tabular-nums}
+.seats div.me{background:var(--seal-soft);outline:2px solid var(--seal)}
+.seats div.me span,.seats div.me b{color:var(--seal)}
+.tips{margin:10px 0 0;padding-left:18px;font-size:13.5px}
+.tips li{margin:3px 0}
+.weblink{align-self:center;font-size:12.5px;color:var(--muted);text-decoration:underline;padding:4px 2px}
+.chk.ok{border-color:var(--jade)}
+.chk.bad{border-color:var(--seal)}
+details.near{margin-top:12px;border:1px dashed var(--line);border-radius:10px;padding:0 10px}
+details.near summary{cursor:pointer;padding:10px 0;font-weight:600;font-size:13.5px;color:var(--jade);list-style:none;display:flex;align-items:center;gap:8px}
+details.near summary::-webkit-details-marker{display:none}
+details.near summary::before{content:"+";display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--jade-soft);font-size:14px;line-height:1}
+details.near[open] summary::before{content:"–"}
+details.near summary span{margin-left:auto;font-size:12px;color:var(--muted);font-weight:500}
+details.near .places{margin:0 0 10px}
+.tag.nearchip{background:transparent;border-style:dashed;color:var(--jade)}
+/* generic sections */
+section.view{display:none}
+section.view.active{display:block}
+.vhead{padding:18px 0 4px}
+.vhead h2{font-family:var(--font-display);font-weight:400;font-size:24px;margin:0 0 4px}
+.vhead p{margin:0;color:var(--muted);font-size:14px}
+.list{display:grid;gap:12px;margin-top:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+.panel h3{margin:0;font-size:16px;font-weight:600;line-height:1.3}
+.panel .sub{color:var(--muted);font-size:13.5px;margin-top:2px}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.kv div{background:var(--bg);border-radius:10px;padding:8px}
+.kv span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.kv b{font-weight:600;font-size:14px;font-variant-numeric:tabular-nums}
+.leg{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-top:12px}
+.leg .end b{display:block;font-family:var(--font-display);font-weight:400;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1}
+.leg .end span{font-size:12.5px;color:var(--muted)}
+.leg .end.r{text-align:right}
+.leg .mid{color:var(--muted);font-size:12px;text-align:center}
+.leg .mid hr{border:0;border-top:2px dotted var(--line);width:48px;margin:4px auto}
+.sectionlabel{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:22px 0 0}
+.foodgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.food{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer}
+.food b{display:block;font-size:18px;font-weight:500}
+.food span{font-size:12.5px;color:var(--muted)}
+.phr{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.phr b{font-size:18px;font-weight:500;display:block}
+.phr span{font-size:13px;color:var(--muted)}
+.note{font-size:13px;color:var(--muted);margin-top:10px}
+
+/* bottom tabs */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+nav.tabs .in{display:flex;max-width:640px;margin:0 auto}
+nav.tabs a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:11.5px;font-weight:500;color:var(--muted);text-decoration:none;border-radius:10px}
+nav.tabs a[aria-current="page"]{color:var(--jade)}
+nav.tabs a[aria-current="page"] svg{stroke:var(--jade)}
+
+/* driver overlay */
+.overlay{position:fixed;inset:0;z-index:30;background:var(--surface);display:none;flex-direction:column;padding:calc(20px + env(safe-area-inset-top)) 20px calc(20px + env(safe-area-inset-bottom))}
+.overlay.show{display:flex}
+.overlay .ask{font-size:20px;color:var(--muted)}
+.overlay .big{font-size:40px;line-height:1.25;font-weight:600;margin:14px 0 10px;word-break:break-word}
+.overlay .bigaddr{font-size:26px;line-height:1.35;font-weight:500;word-break:break-word}
+.overlay .en{font-size:15px;color:var(--muted);margin-top:18px}
+.overlay .grow{flex:1;overflow:auto}
+.overlay .actions{justify-content:stretch}
+.overlay .actions .btn{flex:1;justify-content:center;min-height:48px;font-size:15px}
+
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;z-index:40;white-space:nowrap}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (min-width:520px){.foodgrid{grid-template-columns:1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+
+<header class="top wrap">
+  <div class="eyebrow">17 – 24 Nov 2026 · 7 nights</div>
+  <h1>Guangzhou + Chaoshan <span class="zh">广州·潮汕</span></h1>
+  <div class="status" id="status"><span class="dot"></span><span id="statusText">Trip itinerary</span></div>
+</header>
+
+<!-- DAYS -->
+<section class="view" id="v-days">
+  <div class="strip"><div class="strip-scroll" id="strip" role="tablist" aria-label="Trip days"></div></div>
+  <div class="wrap" id="dayBody"></div>
+</section>
+
+<!-- STAYS -->
+<section class="view" id="v-stays"><div class="wrap">
+  <div class="vhead"><h2>Where we're staying</h2><p>Check-in is after 2pm everywhere. Tap “Show driver” for a full-screen card.</p></div>
+  <div class="list" id="staysList"></div>
+</div></section>
+
+<!-- TRANSPORT -->
+<section class="view" id="v-transport"><div class="wrap">
+  <div class="vhead"><h2>Flights &amp; trains</h2><p>All times local (Singapore and China are both UTC+8).</p></div>
+  <div class="list" id="transList"></div>
+</div></section>
+
+<!-- EATS -->
+<section class="view" id="v-eats"><div class="wrap">
+  <div class="vhead"><h2>Eats</h2><p>Reservations first, then dishes to point at. Tap a dish to show it big.</p></div>
+  <div class="sectionlabel">Reserved</div>
+  <div class="list" id="resList"></div>
+  <div class="sectionlabel">Chaoshan dishes to try</div>
+  <div class="foodgrid" id="foodGrid"></div>
+</div></section>
+
+<!-- CHECK -->
+<section class="view" id="v-check"><div class="wrap">
+  <div class="vhead"><h2>Check map links</h2><p>Tap each map button, see if the pin is the right place, then mark it. Ticks are saved on this phone.</p></div>
+  <div class="panel" style="margin-top:14px"><div id="checkSummary" class="sub"></div><div class="actions"><button class="btn primary" type="button" data-act="copyreport">Copy list of wrong ones</button><button class="btn" type="button" data-act="resetcheck">Reset</button></div></div>
+  <div class="list" id="checkList"></div>
+</div></section>
+
+<!-- HELP -->
+<section class="view" id="v-help"><div class="wrap">
+  <div class="vhead"><h2>Handy phrases</h2><p>Tap to show full screen, or copy into a chat.</p></div>
+  <div class="list" id="phraseList"></div>
+  <div class="sectionlabel">Organiser tools</div><div class="panel" style="margin-top:12px"><a class="btn" href="#check">Check every map link →</a></div>
+  <div class="sectionlabel">Emergency numbers in China</div>
+  <div class="panel" style="margin-top:12px">
+    <div class="kv">
+      <div><span>Police</span><b>110</b></div>
+      <div><span>Ambulance</span><b>120</b></div>
+      <div><span>Fire</span><b>119</b></div>
+    </div>
+  </div>
+</div></section>
+
+<nav class="tabs" aria-label="Sections"><div class="in">
+  <a href="#days" data-v="days"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Days</a>
+  <a href="#stays" data-v="stays"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20V8l9-5 9 5v12"/><path d="M9 20v-6h6v6"/></svg>Stays</a>
+  <a href="#transport" data-v="transport"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16l20-6-2-3-7 2-5-5H6l3 6-5 1-2-2H1l1 4"/><path d="M3 21h18"/></svg>Transport</a>
+  <a href="#eats" data-v="eats"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M8 7c0-2 2-2 2-4M13 7c0-2 2-2 2-4"/></svg>Eats</a>
+  <a href="#help" data-v="help"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.4A8 8 0 1 1 21 12z"/></svg>Phrases</a>
+</div></nav>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="ovBig">
+  <div class="grow">
+    <div class="ask" id="ovAsk">师傅，请带我去这里</div>
+    <div class="big" id="ovBig"></div>
+    <div class="bigaddr" id="ovAddr"></div>
+    <div class="en" id="ovEn"></div>
+  </div>
+  <div class="actions">
+    <button class="btn" id="ovCopy" type="button">Copy</button>
+    <button class="btn primary" id="ovClose" type="button">Done</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- DATA (from Guangzhou_2026_Final.pdf) ---------- */
+const SEATS19=[["Gabriel","009F"],["Fiona","009C"],["Jason","009D"],["Wilson","009A"],["Gina","004F"],["Min Yee","004A"]];
+const SEATS21=[["Gabriel","003F"],["Fiona","004C"],["Jason","004F"],["Wilson","004D"],["Gina","009A"],["Min Yee","004A"]];
+const HOTELS = {
+  landmark:{name:"Landmark International Hotel",sub:"East Railway Station · Tianhe Sport Center Branch",addr:"No. 39-49 Linle Road, Tianhe District, Guangzhou, Guangdong 510610, China",zh:"广州华厦国际商务酒店（广州东站天河体育中心店）",q:"广州华厦国际商务酒店",addrZh:"广州市天河区林乐路39-49号",city:"广州",phone:"+86-20-37855988",room:"2 × Standard Queen Room (1 double or king bed each)",guests:"Gabriel, Fiona, Min Yee, Jason",refs:[["Trip.com booking no.","1653716193054013"]],cancel:"Free cancellation before 5pm, 17 Nov. No meals included."},
+  marriott:{name:"Marriott Hotel Tianhe",sub:"Tianhe",addr:"228 Tianhe Road, Tianhe District, Guangzhou, China 510620",addrZh:"广州市天河区天河路228号",zh:"广州正佳万豪酒店",q:"广州正佳万豪酒店",city:"广州"},
+  urcove:{name:"UrCove by Hyatt Shantou New Town Plaza",sub:"Huanghe Road",zh:"汕头新一城黄河路逸扉酒店",addr:"No. 2 Keji Middle Road, Longhu District, Shantou, Guangdong, China",addrZh:"汕头市龙湖区科技中路2号",city:"汕头",phone:"+86-754-88887667",room:"3 × Superior Twin (2 single beds, coffee machine, minibar, smart toilet)",guests:"Booked under Wilson Lau",refs:[["Confirmation no.","2608232057356080989"],["Trip.com booking no.","1578949371951720"]],cancel:"Late check-out reward included. Free cancellation before 6pm, 19 Nov. No meals included."},
+  somerset:{name:"Somerset Haizhu Centre",sub:"Building C, South Zone, Hesheng Plaza",addr:"Building C, South Zone, Hesheng Plaza, No. 164 Diejing Road, Haizhu District, Guangzhou, Guangdong, China",zh:"广州盛捷海珠中心服务公寓",q:"广州盛捷海珠中心服务公寓",addrZh:"广州市海珠区叠景路164号合生广场南区C栋",city:"广州",phone:"+86-20-83099888",room:"Deluxe Three-Bedroom Suite: 2 queen rooms + 1 room with 2 singles, 2 bathrooms, kitchen, washing machine (up to 6 guests)",guests:"Booked under Wilson Lau",refs:[["Confirmation no.","11578077"],["Trip.com booking no.","1578949402230247"]],cancel:"Free cancellation before 6pm, 21 Nov. No meals included.",near:[{name:"Canton Tower",zh:"广州塔",note:"Short Didi from the apartment. Go up for night views.",q:"广州塔",city:"广州"}]}
+};
+
+const DAYS = [
+ {d:"2026-11-17",dow:"Tue",city:"Guangzhou",title:"Touchdown in Tianhe",summary:"Fly in, drop bags, outlets, Liuyun alleys at dusk, mushroom dinner.",stops:[
+  {t:"03:15",type:"move",title:"Changi Airport",tags:[{k:"who",v:"Fee · Gab · Jason · MY"}],notes:["Check in at the Scoot counter, TR100 (SQ8430).","25kg luggage per person.","Departs 05:20, SIN → CAN."]},
+  {t:"09:30",type:"move",title:"Land at Guangzhou Baiyun Airport",zh:"广州白云国际机场",city:"广州"},
+  {t:"11:00",type:"stay",hotel:"landmark",title:"Drop bags at Landmark International Hotel",go:"40 min by Didi",notes:["Check-in is after 2pm. Leave luggage first."]},
+  {t:"12:00",type:"shop",title:"Wangguo Outlets",zh:"万国奥特莱斯",city:"广州",go:"20 min by Didi",hours:"10am – 10pm",addr:"40 Qianjin Rd, Haizhu District, Guangzhou, Guangdong, China, 510240"},
+  {t:"12:10",type:"move",title:"Gina & Wilson land",tags:[{k:"who",v:"Gina · Wilson"}],notes:["SQ850 departs SIN 08:05, arrives CAN 12:10.","Check in at Marriott Hotel Tianhe, rest, then meet the rest."],hotel:"marriott"},
+  {t:"15:00",type:"stay",hotel:"landmark",title:"Check in, rest, meet Gina & Wilson",go:"20 min by Didi"},
+  {t:"16:00",type:"sight",title:"Liuyun Xiaoqu",zh:"六运小区",city:"广州",go:"15 min by Didi",near:[{name:"Tianhe Sports Center",zh:"天河体育中心",note:"Big open stadium grounds right beside the malls. Nice for an evening stroll.",q:"天河体育中心",city:"广州"},{name:"Flower City Square",zh:"花城广场",note:"Guangzhou's skyline plaza. Best after dark when the towers light up. About 10 min by Didi.",q:"花城广场",city:"广州"},{name:"Canton Tower",zh:"广州塔",note:"The icon across the river from Flower City Square. Go up for night views, or just see it lit up from the square.",q:"广州塔",city:"广州"}],notes:["See the neighbourhood as the lights come on. Lots of small shops and cafés.","Start: exit the metro at Tiyu Xilu Station and head to Tianhenan Yi Lu (天河南一路), just south of the big malls.","Walk into the leafy Liuyun residential alleys for storefronts and local cafés.","Shops to find: Grandma's Stationery (stickers, washi tape), Odds & Ends Art Shop, Rarity Lab (vintage toys).","After the alleys, walk on to Teemall or Grandview Mall."]},
+  {t:"18:30",type:"food",title:"MORE Mushroom Feast",zh:"蘑界 · 天环广场店",q:"蘑界 天环广场店",city:"广州",go:"Walk",hours:"11am – 4pm, 5pm – 9:30pm daily",addr:"Shop B228, B2 Floor, Parc Central, No. 218 Tianhe Road, Tianhe District, Guangzhou"},
+  {t:"21:00",type:"stay",hotel:"landmark",title:"Back to hotel and rest",go:"7 min by Didi or 24 min walk"}
+ ]},
+ {d:"2026-11-18",dow:"Wed",city:"Guangzhou",title:"Old Guangzhou",summary:"Dim sum, Chen Clan Hall, Shamian Island, then the Xinghe Yue banquet.",stops:[
+  {t:"09:00",type:"stay",hotel:"landmark",title:"Leave hotel"},
+  {t:"09:30",type:"food",title:"Heweidian (Yangji Store)",near:[{name:"Dongshankou",zh:"东山口",note:"Old red-brick villas, indie cafés and boutiques. Short Didi from Yangji. You'll be back here on Day 6 for Hope & Sesame.",q:"东山口",city:"广州"}],zh:"禾味点（杨箕店）",city:"广州",go:"12 min by Didi",hours:"7:30am – 10:30pm",notes:["Dim sum breakfast. Meet Gina & Wilson here.","It's on the 4th floor of R&F New World Centre (富力新天地中心)."],addr:"4/F, R&F New World Centre, 307 Guangzhou Avenue Middle, Yuexiu District, Guangzhou, Guangdong, China"},
+  {t:"11:30",type:"sight",title:"Chen Clan Ancestral Hall",zh:"陈家祠",near:[{name:"Yongqingfang",zh:"永庆坊",note:"Restored Xiguan lanes with cafés and craft shops. Bruce Lee's ancestral house is inside.",q:"永庆坊",city:"广州"},{name:"Shangxiajiu Pedestrian Street",zh:"上下九步行街",note:"Old arcade shopping street with classic Cantonese snack shops.",q:"上下九步行街",city:"广州"},{name:"Liwan Lake Park",zh:"荔湾湖公园",note:"Quiet lakeside park if you want a breather.",q:"荔湾湖公园",city:"广州"}],q:"陈家祠 景区",city:"广州",go:"19 min by Didi",hours:"9am – 6pm",cost:"Ticket about SGD 2",notes:["Allow 1–2 hours for the courtyards and folk art museum."],addr:"No. 34, Enlongli, Zhongshan 7th Road, Liwan District, Guangzhou, China"},
+  {t:"14:00",type:"sight",title:"Shamian Island",zh:"沙面岛",near:[{name:"White Swan Hotel",zh:"白天鹅宾馆",note:"Landmark riverside hotel on Shamian. Pop into the lobby for the indoor garden and river views.",q:"白天鹅宾馆",city:"广州"},{name:"Qingping Market",zh:"清平市场",note:"Traditional market for dried seafood and Chinese herbs, right across from Shamian. Fun to wander.",q:"清平市场",city:"广州"}],city:"广州",go:"12 min by Didi",hours:"Free, open 24 hrs",notes:["Colonial architecture, photos and a quiet break from the city."],addr:"Liwan District, Guangzhou, China",places:[{name:"Harry Potter Starbucks",note:"In the area",addr:"No. 50–52 Shamian Main Street, Liwan District, Guangzhou, China",q:"沙面 星巴克",city:"广州"}]},
+  {t:"16:00",type:"food",title:"Xinghe Yue Banquet",zh:"星河粤宴",q:"星河粤宴",city:"广州",tags:[{k:"res",v:"Booked · 6 adults"},{k:"",v:"Rows 1–2 · Dinner + Costume"}],go:"About 30 min by Didi",hours:"5pm – 9pm (subject to change)",refs:[["Trip.com booking no.","1167734585010846"]],notes:["Trip.com will confirm whether the booking succeeded by 6pm on 17 Nov (local time). Check the app that evening.","Immersive Imperial Feast: Cantonese heritage cuisine, imperial delicacies, ancient music, Hanfu dress-up and an audiovisual show.","Venue: Galaxy Media Banquet Art Center (星河美学宴艺中心), Haizhu District."],addr:"No. 248 Qiaotou Street, Guanzhou Street, Haizhu District, Guangzhou, Guangdong, China",addrZh:"广东省广州市海珠区官洲街道桥头大街248号3楼"},
+  {t:"20:00",type:"stay",hotel:"landmark",title:"Back to hotel, pack and rest",go:"About 20 min by Didi",notes:["Can go elsewhere if it ends early."]}
+ ]},
+ {d:"2026-11-19",dow:"Thu",city:"Shantou",title:"High-speed to Chaoshan",summary:"Train to Shantou, food street, sunset at Xidi Park, beef hotpot.",stops:[
+  {t:"07:30",type:"move",title:"Check out → Guangzhou East Railway Station",zh:"广州东站",city:"广州",go:"About 5 min by Didi",notes:["Meet Gina & Wilson there. Grab breakfast on the way if needed.","See if we can leave excess bags at luggage storage."]},
+  {t:"09:05",type:"move",title:"Train: Guangzhou East → Shantou",tags:[{k:"tix",v:"Tickets bought"},{k:"",v:"1st Class · Car 01"}],notes:["Departs 9:05am from Guangzhou East.","Arrives 11:28am at Shantou."],seats:"SEATS19"},
+  {t:"11:30",type:"stay",hotel:"urcove",title:"Shantou Station → drop bags at UrCove",go:"10 min by Didi",notes:["Check-in is after 2pm. Leave luggage first."]},
+  {t:"12:30",type:"food",title:"Longyan South Road Food Street",zh:"龙眼南路美食街",city:"汕头",go:"14 min by Didi",hours:"Most stalls 10am – 8pm (breakfast stalls earlier)",notes:["Small Park, old arcade streets, old port area, local snack shops, photos, ancestral village visit.","Expect a busy strip of cart stalls and popular shops cooking Chaoshan specialties on the sidewalk."],addr:"Longyan South Street, Jinping District, Shantou City"},
+  {t:"15:00",type:"sight",title:"Xidi Park (North Gate)",near:[{name:"Laoma Temple",zh:"老妈宫",note:"Old temple and stage in the old town. Try the famous 老妈宫粽球 (sweet-savoury rice dumpling) nearby.",q:"老妈宫",city:"汕头"},{name:"Shantou Opening Port Culture Exhibition Hall",zh:"汕头开埠文化陈列馆",note:"Small museum on Shantou's history as a treaty port, in the Small Park area.",q:"汕头开埠文化陈列馆",city:"汕头"}],zh:"西堤公园 北门",q:"西堤公园",city:"汕头",go:"Walk",notes:["Walk to the North Gate, then along the waterfront.","Best 4:00 – 6:30pm for the seaside sunset and evening breeze."]},
+  {t:"17:00",type:"food",title:"BaHeLiHaiJi Beef Hotpot, Shantou Head Store",zh:"八合里潮汕鲜牛肉火锅 汕头总店",q:"八合里潮汕鲜牛肉火锅 汕头总店",city:"汕头",go:"13 min by Didi",hours:"5pm – 9pm daily",notes:["Dinner: Chaoshan beef hotpot!","Backup: Chenji Shunhe Beef Shop."],addr:"Huanggang Road, Jinping District, Shantou, Guangdong, China (main store)",addrZh:"广东省汕头市金平区黄岗路坪东5座01号房"},
+  {t:"19:00",type:"stay",hotel:"urcove",title:"Back to hotel, check in, rest",go:"About 16 min by Didi",notes:["Can go elsewhere if we have energy."]}
+ ]},
+ {d:"2026-11-20",dow:"Fri",city:"Shantou",title:"Chaoshan, all day",summary:"Local breakfast, Queshi cable car and toboggan, old town, second food night.",stops:[
+  {t:"08:00",type:"food",title:"Chaoshan breakfast",nearTitle:"Breakfast ideas",near:[{name:"Laohu Beef Kway",zh:"老鬍牛肉粿",note:"Signature Chaoshan beef kway teow, a time-honoured shop founded in 1985.",q:"老鬍牛肉粿",city:"汕头"},{name:"Haiji Pork Blood Soup",zh:"海记猪血汤",note:"Breakfast institution featured on the show Breakfast in China. Map shows the Fengyuan branch.",q:"海记猪血汤 龙眼园店",city:"汕头"},{name:"Laochaoxing Kueh",zh:"老潮兴",note:"Century-old kueh shop (since 1910): red peach kueh, sweet kueh, radish cake. Branch in the Small Park old town.",q:"老潮兴",city:"汕头"}],notes:["Find a local Chaoshan breakfast shop."],try:["潮汕粿条","肠粉","牛肉粿","蚝烙","潮汕粥"]},
+  {t:"10:00",type:"sight",title:"Queshi Scenic Area",zh:"礐石风景区",city:"汕头",go:"20 min by Didi",hours:"8am – 5pm",cost:"Entry free · Cable car CNY 25 / 40 return · Slide CNY 60 / 80 double",notes:["Go in the morning while there's plenty of daylight.","Ride the open-air cable car up, then the mountain toboggan down.","Stroll the Valley of Dreams and Taohuajian Lake: forest paths, cliff carvings, lake views.","Classic 2–3 hr route (Tashan Zone): cable car up, walk to Piaoran Pavilion for city and bay views, explore Chuihong Cave, toboggan down.","Tip: the cheap cross-sea ferry from Guangchang wharf gets you there easily."]},
+  {t:"14:00",type:"sight",title:"Shantou Museum → Zhongshan Park → Old Town",near:[{name:"Seashore Long Corridor Park",zh:"汕头海滨长廊",note:"Waterfront promenade along Haibin Road. Good for sunset or a walk after dinner.",q:"汕头海滨长廊",city:"汕头"},{name:"Chaozhou Old Town (half-day trip)",zh:"广济桥",note:"If you have a spare half-day: Chaozhou is about 1 hr away. Guangji Bridge, Paifang Street and the old town are the highlights.",q:"广济桥",city:"潮州"}],go:"15 min by Didi",notes:["Walk around. Chaoshan afternoon tea and snacks."],places:[{name:"Shantou Museum",zh:"汕头博物馆",city:"汕头"},{name:"Zhongshan Park",zh:"汕头中山公园",city:"汕头"},{name:"Old Town (Small Park)",zh:"汕头小公园",city:"汕头"}]},
+  {t:"17:30",type:"food",title:"Dinner: second Chaoshan food night",nearTitle:"Dinner ideas",near:[{name:"Wu Ji Fu Yuan (night congee)",zh:"吴记富苑（朝阳街总店）",note:"Big Chaoshan da leng (cold-dish) stall: plain congee with hundreds of sides like braised goose, fish rice and raw-marinated seafood. Opens 5pm till late.",q:"吴记富苑 朝阳街",city:"汕头"},{name:"Ruijiao Mama (raw-marinated seafood)",zh:"瑞娇嫲嫲",note:"Go-to for 生腌 (raw-marinated crab, prawns, oysters). Heritage-listed recipes. Map shows the Longyan branch.",q:"瑞娇嫲嫲",city:"汕头"},{name:"Chenghai Mei Lion-head Goose",zh:"澄海妹狮头鹅",note:"30-year-old braised goose shop. Cheap goose rice plates.",q:"澄海妹狮头鹅",city:"汕头"},{name:"Chunmeili Braised Goose",zh:"春梅里卤鹅",note:"50-year-old braised goose institution. Head store closes around 8:40pm, so go early.",q:"春梅里卤鹅",city:"汕头"},{name:"Sha Nao Oyster Omelette",zh:"傻脑蚝烙",note:"Popular spot for crispy Chaoshan oyster omelette (蚝烙). About ¥24 per person.",q:"傻脑蚝烙",city:"汕头"}],notes:["Find FOOD!"],try:["潮汕卤鹅","潮汕生腌","Oyster omelette","Fish rice","Sweet soup"]},
+  {t:"19:00",type:"stay",hotel:"urcove",title:"Free time, then pack",nearTitle:"Evening ideas",near:[{name:"Shantou Old Town at night",zh:"汕头老城",note:"Century-old arcade streets lit up after dark, with night snacks and kung fu tea.",q:"汕头老城",city:"汕头"},{name:"Sandai Ren Sweet Soup",zh:"三代人甜汤",note:"Sweet-soup shop open till 11:30pm. Try the ginger-yam five-fruit soup (姜薯五果汤).",q:"三代人甜汤 长平",city:"汕头"},{name:"Seashore Long Corridor Park",zh:"汕头海滨长廊",note:"Waterfront promenade for a breezy after-dinner walk.",q:"汕头海滨长廊",city:"汕头"}],go:"Didi everywhere",notes:["Shop? See where everyone wants to go.","Back to hotel, pack and rest."]}
+ ]},
+ {d:"2026-11-21",dow:"Sat",city:"Guangzhou",title:"Back to the big city",summary:"Early train back, Liuyun in daylight, Tianhe malls, Sichuan dinner.",stops:[
+  {t:"07:00",type:"move",title:"Check out → Shantou Railway Station",zh:"汕头站",city:"汕头",go:"About 10 min by Didi",notes:["Grab breakfast on the way if needed."]},
+  {t:"08:01",type:"move",title:"Train G8437: Shantou → Guangzhou East",tags:[{k:"tix",v:"Tickets bought"},{k:"",v:"1st Class · Car 01"}],notes:["Departs 8:01am from Shantou, ticket gate 6A_7A (gate may change, check before boarding).","Arrives 10:38am at Guangzhou East (2h 37m)."],refs:[["Train","G8437"],["Ticket collection code","EC33159969"],["Trip.com booking no.","1688903285797525"]],seats:"SEATS21"},
+  {t:"10:45",type:"stay",hotel:"somerset",title:"Drop bags at Somerset Haizhu Centre",go:"20 min by Didi",notes:["Check-in is after 2pm. Leave luggage first."]},
+  {t:"11:00",type:"sight",title:"Liuyun Xiaoqu",zh:"六运小区",city:"广州",go:"20 min by Didi",notes:["Quiet residential alleys with coffee shops, dessert spots, vintage toy stores and art spaces, tucked behind Tianhe's big malls.","Walk Tianhenan First Street (天河南一路) and Tiyu Xilu Hengjie (体育西横街)."]},
+  {t:"14:00",type:"shop",title:"Tianhe shopping district",near:[{name:"Flower City Square",zh:"花城广场",note:"Skyline plaza a short Didi south. Best after dark.",q:"花城广场",city:"广州"},{name:"Guangzhou Opera House",zh:"广州大剧院",note:"Zaha Hadid-designed building by Flower City Square. Worth seeing from outside.",q:"广州大剧院",city:"广州"},{name:"Canton Tower",zh:"广州塔",note:"Night views from the top, or photos from the square.",q:"广州塔",city:"广州"}],go:"Walk from Liuyun, or 12 min by Didi from hotel",notes:["Check in first or keep going. Either works, it's not far."],places:[{name:"Tianhe City (Teemall)",zh:"天河城",city:"广州"},{name:"Parc Central (Tianhuan)",zh:"天环广场",city:"广州"},{name:"Grandview Mall",zh:"正佳广场",city:"广州",note:"Pokémon Center here! TCG leggooo! No time? Gab and Fee come back Day 7."},{name:"Taikoo Hui",zh:"太古汇",city:"广州"}]},
+  {t:"20:00",type:"food",title:"Ludingji Tianhe Branch",city:"广州",go:"Walk over from the malls",hours:"11:30am – 9:30pm",notes:["Dinner! Sichuan cuisine."]},
+  {t:"21:30",type:"stay",hotel:"somerset",title:"Back to hotel and rest",go:"14 min by Didi"}
+ ]},
+ {d:"2026-11-22",dow:"Sun",city:"Guangzhou",title:"Beijing Lu & Liwan",summary:"Pedestrian street, Pokémon and TCG hunting, Dafo Temple lit up, live bar.",stops:[
+  {t:"10:00",type:"shop",title:"Beijing Road Pedestrian Street",near:[{name:"Yuexiu Park",zh:"越秀公园",note:"Big hillside park with the Five Rams statue, Guangzhou's symbol. 4A attraction.",q:"越秀公园",city:"广州"},{name:"Dr. Sun Yat-sen's Memorial Hall",zh:"中山纪念堂",note:"Grand 1930s memorial hall with lawns. Quick, photogenic stop.",q:"中山纪念堂",city:"广州"},{name:"Pearl River Night Cruise (Tianzi Wharf)",zh:"天字码头",note:"Night cruise past the lit-up skyline and Canton Tower. Walkable from Beijing Road.",q:"天字码头",city:"广州"}],zh:"北京路步行街",city:"广州",go:"22 min by Didi",notes:["Shopping, breakfast or lunch, snacks, cafés."]},
+  {t:"",type:"shop",title:"Pokémon Merchandise Shop (Beijing Lu)",notes:["Inside Beijing Road Teemall (北京路天河城). Map pin goes to the mall."],tags:[{k:"who",v:"Gab · Fee"}],q:"北京路天河城",city:"广州",go:"Walk",hours:"10am – 10pm daily",addr:"Basement / 1st Floor, Tee Mall Shangpin Hui (Beijing Lu Tianhe City), 168 Beijing Road, Yuexiu District, Guangzhou"},
+  {t:"14:00",type:"shop",title:"Pine A Ball TCG",near:[{name:"Yongqingfang",zh:"永庆坊",note:"Right next door. Restored Xiguan lanes and cafés.",q:"永庆坊",city:"广州"},{name:"Bruce Lee Ancestral Residence",zh:"李小龙祖居",note:"Inside Yongqingfang. Small, free-ish photo stop.",q:"李小龙祖居",city:"广州"}],tags:[{k:"",v:"If time permits"},{k:"who",v:"Gab · Fee"}],q:"广州逢源中约63号",city:"广州",go:"14 min by Didi from Beijing Lu",hours:"2pm onwards daily",notes:["Inside a preserved 100-year-old Xiguan mansion, a short walk from Yongqing Fang (永庆坊)."],addr:"No. 63 Fengyuan Zhongyue, Liwan District, Guangzhou",addrZh:"广州市荔湾区逢源中约63号"},
+  {t:"19:00",type:"sight",title:"Dafo Temple (Great Buddha Temple)",zh:"大佛寺",q:"广州大佛寺",city:"广州",notes:["Thousand-year-old Buddhist temple that lights up brilliantly after dark.","Find food along the way."]},
+  {t:"20:00",type:"food",title:"Hope & Sesame Guangzhou",near:[{name:"Xinhepu Historic Block",zh:"新河浦",note:"Dongshankou's leafy villa streets. Lovely for a short walk before the 8pm booking.",q:"新河浦历史文化街区",city:"广州"}],zh:"庙前冰室",q:"庙前冰室 庙前西街",addr:"Miaoqian Xijie 58, Dongshankou, Yuexiu District, Guangzhou",city:"广州",tags:[{k:"res",v:"Confirmed · 7 guests"},{k:"",v:"Bar1"}],go:"16 min by Didi from Dafo Temple",refs:[["Arrival check-in","尾号 4265"],["Booked via","bitebook"]],notes:["Live bar!! Enter through the old-school Cantonese ice café (庙前冰室) out front; the bar is hidden behind it.","Table is held for 2 hours from 8pm. Arrive on time, late reservations may be released."]},
+  {t:"22:00",type:"stay",hotel:"somerset",title:"Back to hotel and rest",go:"18 min by Didi"}
+ ]},
+ {d:"2026-11-23",dow:"Mon",city:"Guangzhou",title:"Free day + the fancy dinner",summary:"Go anywhere. Grandview Pokémon Center, Coffee Gallery, Michelin dinner.",stops:[
+  {t:"09:00",type:"food",title:"Leave and find breakfast",notes:["Free day, go anywhere!"]},
+  {t:"10:00",type:"shop",title:"Grandview Mall",zh:"正佳广场",city:"广州",tags:[{k:"who",v:"Gab · Fee at 10am"}],go:"13 min by Didi",notes:["Pokémon Center here! TCG leggooo!","The official Pokémon TCG store (宝可梦官方卡牌道馆) is on the 2nd floor."]},
+  {t:"",type:"sight",title:"Coffee Gallery",zh:"咖啡源（优托邦购物中心店）",city:"广州",q:"咖啡源 优托邦",go:"Didi from wherever",hours:"10am – 7pm",notes:["See if we can get tickets there."],addr:"Near the North Gate, UTOPA Shopping Center, 12 Aoti South Road, Tianhe District, Guangzhou",addrZh:"奥体南路12号优托邦购物中心近北门"},
+  {t:"18:15",type:"food",title:"Yu Yue Heen",near:[{name:"Flower City Square",zh:"花城广场",note:"Right outside the Four Seasons. Walk it after dinner for the skyline lights.",q:"花城广场",city:"广州"},{name:"Guangzhou Opera House",zh:"广州大剧院",note:"Also on Flower City Square, beautiful lit up at night.",q:"广州大剧院",city:"广州"},{name:"Canton Tower",zh:"广州塔",note:"Across the river. Great night view from the square.",q:"广州塔",city:"广州"}],zh:"愉粤轩 · 广州四季酒店",city:"广州",q:"广州四季酒店",tags:[{k:"res",v:"Accepted · 6:15pm · 8 pax"}],go:"Didi from wherever (aim to leave ~6pm)",hours:"Dinner 5:30 – 9:30pm",refs:[["Reservation ID (4 pax)","XQ9GVF"],["Reservation ID (4 pax)","XPF5GD"]],notes:["Michelin-starred Cantonese. The fancy dinner of the trip.","Two bookings of 4 (the website caps at 5). We asked the restaurant to combine them into one table of 8."],addr:"Four Seasons Hotel Guangzhou"},
+  {t:"21:00",type:"stay",hotel:"somerset",title:"Back to hotel, pack and rest",go:"Didi everywhere",notes:["Can go elsewhere if dinner ends early."]}
+ ]},
+ {d:"2026-11-24",dow:"Tue",city:"Guangzhou → Singapore",title:"Home",summary:"Breakfast, last-minute buys, pack up, fly home.",stops:[
+  {t:"08:30",type:"food",title:"Breakfast · last-minute buys · PACK UP!"},
+  {t:"10:30",type:"stay",hotel:"somerset",title:"Leave for Baiyun Airport",go:"45 min by Didi (allow 1 hr)",notes:["Check-out before 12pm."]},
+  {t:"11:30",type:"move",title:"Baiyun Airport check-in",zh:"广州白云国际机场",city:"广州",notes:["SIA counter, SQ851.","25kg luggage per person."]},
+  {t:"13:30",type:"move",title:"SQ851 departs CAN → SIN",notes:["Home sweet home ☺"]}
+ ]}
+];
+
+const STAYS = [
+  {h:"landmark",from:"2026-11-17",to:"2026-11-19",nights:2,who:"Fee · Gab · Jason · MY",out:"12pm",rooms:"2 rooms"},
+  {h:"marriott",from:"2026-11-17",to:"2026-11-19",nights:2,who:"Gina · Wilson",out:"12pm",rooms:"Gina & Wilson"},
+  {h:"urcove",from:"2026-11-19",to:"2026-11-21",nights:2,who:"Everyone",out:"2pm (late check-out perk)",rooms:"3 rooms"},
+  {h:"somerset",from:"2026-11-21",to:"2026-11-24",nights:3,who:"Everyone",out:"12pm",rooms:"Apartment · 3 bed · 2 bath"}
+];
+
+const LEGS = [
+  {kind:"Flight",code:"TR100 (SQ8430)",carrier:"Scoot",date:"Tue 17 Nov",from:"SIN",fromT:"05:20",to:"CAN",toT:"09:30",note:"Fee · Gab · Jason · MY. Be at Changi by 3:15am. 25kg per person."},
+  {kind:"Flight",code:"SQ850",carrier:"Singapore Airlines",date:"Tue 17 Nov",from:"SIN",fromT:"08:05",to:"CAN",toT:"12:10",note:"Gina · Wilson."},
+  {kind:"Train",code:"High-speed rail · 1st Class",carrier:"Tickets bought",date:"Thu 19 Nov",from:"Guangzhou East",fromT:"09:05",to:"Shantou",toT:"11:28",note:"Leave the hotel 7:30am. Ask about luggage storage at the station.",seats:SEATS19},
+  {kind:"Train",code:"G8437 · 1st Class",carrier:"Tickets bought",date:"Sat 21 Nov",from:"Shantou",fromT:"08:01",to:"Guangzhou East",toT:"10:38",note:"Leave the hotel 7:00am. Ticket gate 6A_7A (may change).",seats:SEATS21,refs:[["Ticket collection code","EC33159969"],["Trip.com booking no.","1688903285797525"]]},
+  {kind:"Flight",code:"SQ851",carrier:"Singapore Airlines",date:"Tue 24 Nov",from:"CAN",fromT:"13:30",to:"SIN",toT:"",note:"Leave the apartment 10:30am, at the SIA counter by 11:30am. 25kg per person."}
+];
+
+const FOODS = [
+  {zh:"潮汕粿条",en:"Chaoshan rice noodles"},
+  {zh:"肠粉",en:"Rice noodle rolls"},
+  {zh:"牛肉粿",en:"Beef kway"},
+  {zh:"蚝烙",en:"Oyster omelette"},
+  {zh:"潮汕粥",en:"Chaoshan congee"},
+  {zh:"潮汕卤鹅",en:"Braised goose"},
+  {zh:"潮汕生腌",en:"Raw marinated seafood"},
+  {zh:"牛肉火锅",en:"Beef hotpot"}
+];
+
+const PHRASES = [
+  {zh:"师傅，请带我去这里",py:"shīfu, qǐng dài wǒ qù zhèlǐ",en:"Driver, please take me here"},
+  {zh:"多少钱？",py:"duōshao qián?",en:"How much is it?"},
+  {zh:"可以用支付宝吗？",py:"kěyǐ yòng zhīfùbǎo ma?",en:"Can I pay with Alipay?"},
+  {zh:"买单",py:"mǎidān",en:"The bill, please"},
+  {zh:"不要辣",py:"bú yào là",en:"Not spicy, please"},
+  {zh:"洗手间在哪里？",py:"xǐshǒujiān zài nǎlǐ?",en:"Where is the toilet?"},
+  {zh:"我们有预订",py:"wǒmen yǒu yùdìng",en:"We have a reservation"},
+  {zh:"可以寄存行李吗？",py:"kěyǐ jìcún xíngli ma?",en:"Can we leave our luggage here?"}
+];
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const IC = {
+  copy:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>',
+  car:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M6 17v2M18 17v2M4 13l2-6h12l2 6v4H4z"/><circle cx="8" cy="14" r=".5"/><circle cx="16" cy="14" r=".5"/></svg>',
+  map:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  go:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  chev:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'
+};
+function fmtTime(t){ if(!t) return {h:"",ap:""}; let [h,m]=t.split(":").map(Number); const ap=h<12?"am":"pm"; let hh=h%12||12; return {h:`${hh}:${String(m).padStart(2,"0")}`,ap}; }
+function nowCN(){ // wall-clock in UTC+8 (Singapore & China)
+  const n=new Date(Date.now()+8*3600e3); return {date:n.toISOString().slice(0,10),mins:n.getUTCHours()*60+n.getUTCMinutes(),ms:Date.now()};
+}
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),1600); }
+async function copy(text,label){
+  try{ await navigator.clipboard.writeText(text); toast(label||"Copied"); return; }catch(e){}
+  try{ const ta=document.createElement("textarea"); ta.value=text; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); const ok=document.execCommand("copy"); ta.remove(); toast(ok?(label||"Copied"):"Couldn't copy. Press and hold the text instead."); }catch(e){ toast("Couldn't copy. Press and hold the text instead."); }
+}
+const UA=navigator.userAgent||"";
+const IS_IOS=/iPhone|iPad|iPod/.test(UA)||(/Macintosh/.test(UA)&&navigator.maxTouchPoints>1);
+const IS_ANDROID=/Android/.test(UA);
+function mapLinks(q,city){
+  const kw=encodeURIComponent(q), c=city?`&city=${encodeURIComponent(city)}`:"";
+  const web=`https://uri.amap.com/search?keyword=${kw}${c}&callnative=1`;
+  const ll={"广州":"23.1291,113.2644","汕头":"23.3541,116.6819","潮州":"23.6618,116.6226"}[city];
+  const ap=`https://maps.apple.com/?q=${kw}${ll?`&sll=${ll}&z=12`:""}`;
+  return `<a class="btn" href="${web}" target="_blank" rel="noopener" data-copyq="${esc(q)}">${IC.map}Amap</a>${IS_ANDROID?"":`<a class="btn" href="${ap}" target="_blank" rel="noopener" data-copyq="${esc(q)}">${IC.map}Apple Maps</a>`}`;
+}
+/* registry of things the action buttons refer to */
+const REG=[]; function reg(o){ REG.push(o); return REG.length-1; }
+function hotelTarget(h){ return {name:h.name,zh:h.zh||"",addr:h.addr,addrZh:h.addrZh||"",q:h.q||h.zh||h.addrZh||h.addr,city:h.city}; }
+function placeTarget(p){
+  const h=p.hotel&&p.type==="stay"?HOTELS[p.hotel]:null;
+  if(h) return hotelTarget(h);
+  return {name:p.title||p.name,zh:p.zh||"",addr:p.addr||"",addrZh:p.addrZh||"",q:p.q||(p.zh?p.zh.split(" · ")[0]:(p.addrZh||p.addr||"")),city:p.city||""};
+}
+function actionsFor(tg){
+  if(!tg.addr && !tg.zh && !tg.addrZh && !tg.q) return "";
+  const id=reg(tg); let out='<div class="actions">';
+  if(tg.addr||tg.addrZh) out+=`<button class="btn" data-act="copyaddr" data-id="${id}" type="button">${IC.copy}Copy address</button>`;
+  else out+=`<button class="btn" data-act="copyname" data-id="${id}" type="button">${IC.copy}Copy name</button>`;
+  out+=`<button class="btn primary" data-act="driver" data-id="${id}" type="button">${IC.car}Show driver</button>`;
+  out+=mapLinks(tg.q,tg.city)+"</div>"; return out;
+}
+
+function nearHTML(list,title){ if(!list||!list.length) return ""; return `<details class="near"><summary>${esc(title||"Nearby if you finish early")} <span>${list.length}</span></summary><div class="places">${list.map(p=>`<div class="place"><b>${esc(p.name)}</b><span class="zh">${esc(p.zh)}</span><div class="n">${esc(p.note)}</div>${actionsFor({name:p.name,zh:p.zh,addr:"",addrZh:"",q:p.q,city:p.city})}</div>`).join("")}</div></details>`; }
+function refsHTML(refs){ return `<div class="meta refs">${refs.map(([k,v])=>`<div class="ref"><span>${esc(k)}</span><button class="refbtn" type="button" data-act="copytext" data-text="${esc(v)}" aria-label="Copy ${esc(k)}">${esc(v)} ${IC.copy}</button></div>`).join("")}</div>`; }
+function seatsHTML(list){ return mySeatLine(list)+`<div class="seats">${list.map(([n,st])=>`<div class="${n===ME?"me":""}"><span>${esc(n)}</span><b>${esc(st)}</b></div>`).join("")}</div>`; }
+const PEOPLE=["Gabriel","Fiona","Jason","Min Yee","Wilson","Gina"];
+let ME=null; try{ ME=localStorage.getItem("gz-me"); }catch(e){}
+function mePicker(){ return `<div class="mepick"><span>Whose seat?</span>${PEOPLE.map(n=>`<button type="button" class="mechip" data-act="setme" data-name="${esc(n)}" aria-pressed="${n===ME}">${esc(n)}</button>`).join("")}</div>`; }
+function mySeatLine(list){ if(!ME) return ""; const r=list.find(x=>x[0]===ME); return r?`<div class="myseat">${esc(ME)}: Car 01, seat <b>${esc(r[1])}</b> · 1st Class</div>`:""; }
+/* ---------- days view ---------- */
+let curDay=0;
+function tripState(){
+  const n=nowCN(); const idx=DAYS.findIndex(d=>d.d===n.date);
+  return {n,idx};
+}
+function renderStrip(){
+  const {idx}=tripState();
+  $("#strip").innerHTML=DAYS.map((d,i)=>`<button class="daychip${i===idx?" today":""}" role="tab" id="chip-${i}" aria-selected="${i===curDay}" data-day="${i}" type="button"><span>${d.dow}</span><b>${+d.d.slice(8)}</b><span>Day ${i+1}</span></button>`).join("");
+  const c=$("#chip-"+curDay); if(c) c.scrollIntoView({inline:"center",block:"nearest"});
+}
+function renderDay(){
+  REG.length=0;
+  const d=DAYS[curDay]; const {n,idx}=tripState();
+  // which stop is "now"
+  let nowI=-1; if(idx===curDay){ d.stops.forEach((s,i)=>{ if(s.t){ const [h,m]=s.t.split(":").map(Number); if(h*60+m<=n.mins) nowI=i; } }); }
+  const dateLabel=new Date(d.d+"T00:00:00Z").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",timeZone:"UTC"});
+  let html=`<div class="dayhead"><div class="eyebrow">Day ${curDay+1} · ${dateLabel}</div><h2>${esc(d.title)}</h2><span class="city">${esc(d.city)}</span><p class="summary">${esc(d.summary)}</p></div><ol class="tl">`;
+  d.stops.forEach((s,i)=>{
+    const tm=fmtTime(s.t); const tg=placeTarget(s);
+    const tags=[...(s.tags||[])]; if(i===nowI) tags.unshift({k:"now",v:"Now"});
+    const open = i===nowI || (nowI===-1 && false);
+    let body="";
+    if(s.notes) body+= s.notes.length===1?`<p>${esc(s.notes[0])}</p>`:`<ul>${s.notes.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+    if(s.try) body+=`<div class="tags" style="margin-top:10px">${s.try.map(x=>`<button class="tag" style="cursor:pointer;font-size:13px" data-act="bigtext" data-text="${esc(x)}" type="button">${esc(x)}</button>`).join("")}</div>`;
+    if(s.hours||s.cost){ body+=`<dl class="meta">${s.hours?`<dt>Hours</dt><dd>${esc(s.hours)}</dd>`:""}${s.cost?`<dt>Cost</dt><dd>${esc(s.cost)}</dd>`:""}</dl>`; }
+    if(s.refs) body+=refsHTML(s.refs);
+    if(s.seats) body+=mePicker()+seatsHTML(s.seats==="SEATS19"?SEATS19:SEATS21);
+    if(tg.addr||tg.addrZh) body+=`<div class="addr">${esc(tg.addr)}${tg.addrZh?`<span class="zhaddr">${esc(tg.addrZh)}</span>`:""}</div>`;
+    body+=actionsFor(tg);
+    if(s.places) body+=`<div class="places">${s.places.map(p=>{const pt={name:p.name,zh:p.zh||"",addr:p.addr||"",addrZh:"",q:p.q||p.zh||p.name,city:p.city||""};return `<div class="place"><b>${esc(p.name)}</b>${p.zh?`<span class="zh">${esc(p.zh)}</span>`:""}${p.note?`<div class="n">${esc(p.note)}</div>`:""}${p.addr?`<div class="n" style="color:var(--muted)">${esc(p.addr)}</div>`:""}${actionsFor(pt)}</div>`}).join("")}</div>`;
+    // Gina/Wilson stop: show Marriott actions
+    body+=nearHTML(s.near,s.nearTitle);
+    if(s.type!=="stay" && s.hotel){ const h=HOTELS[s.hotel]; body+=`<div class="addr"><b>${esc(h.name)}</b><br>${esc(h.addr)}</div>`+actionsFor(hotelTarget(h)); }
+    if(s.type==="stay" && s.hotel){ body = `<p class="sub" style="margin-top:10px;color:var(--muted)">${esc(HOTELS[s.hotel].name)}</p>` + body; }
+    const hasBody = body.trim().length>0;
+    html+=`<li class="stop t-${s.type}${i===nowI?" now":""}"><div class="time">${tm.h||"·"}<small>${tm.ap||"nearby"}</small></div>
+      <div class="card${open?" open":""}">
+        <button class="card-h" type="button" aria-expanded="${open}" ${hasBody?"":"disabled style=\"cursor:default\""}>${hasBody?`<span class="chev">${IC.chev}</span>`:""}<span class="title">${esc(s.title)}</span>${s.zh?`<span class="zh">${esc(s.zh)}</span>`:""}${tags.length||s.near?`<span class="tags">${tags.map(t=>`<span class="tag ${t.k}">${esc(t.v)}</span>`).join("")}${s.near?`<span class="tag nearchip">+${s.near.length} ${s.nearTitle?"ideas":"nearby"}</span>`:""}</span>`:""}</button>
+        ${s.go?`<div class="go">${IC.go}${esc(s.go)}</div>`:""}
+        ${hasBody?`<div class="card-b">${body}</div>`:""}
+      </div></li>`;
+  });
+  html+=`</ol><div class="daynav"><button type="button" data-step="-1" ${curDay===0?"disabled":""}>← Day ${curDay}</button><button type="button" data-act="expandall">Expand all</button><button type="button" data-step="1" ${curDay===DAYS.length-1?"disabled":""}>Day ${curDay+2} →</button></div>`;
+  $("#dayBody").innerHTML=html;
+}
+function setDay(i,scroll){ curDay=Math.max(0,Math.min(DAYS.length-1,i)); renderStrip(); renderDay(); try{ if(location.hash!=="#day-"+(curDay+1)) history.replaceState(null,"","#day-"+(curDay+1)); }catch(e){} if(scroll) window.scrollTo({top:0}); }
+
+/* ---------- other views ---------- */
+function fmtD(s){ return new Date(s+"T00:00:00Z").toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"}); }
+function renderStays(){
+  const {n}=tripState();
+  $("#staysList").innerHTML=STAYS.map(s=>{const h=HOTELS[s.h]; const tonight=n.date>=s.from && n.date<s.to;
+    return `<div class="panel"${tonight?' style="border-color:var(--seal)"':""}>
+      ${tonight?'<div class="tags" style="margin:0 0 8px"><span class="tag now">Tonight</span></div>':""}
+      <h3>${esc(h.name)}</h3><div class="sub">${esc(h.sub)} · ${esc(s.who)}</div>
+      <div class="kv"><div><span>Check in</span><b>${fmtD(s.from)}</b></div><div><span>Check out</span><b>${fmtD(s.to)}</b></div><div><span>Out by</span><b>${s.out}</b></div></div>
+      <div class="note">${s.nights} nights${s.rooms&&s.h!=="marriott"?` · ${esc(s.rooms)}`:""}${h.guests?` · ${esc(h.guests)}`:""}</div>
+      ${h.room?`<p style="margin:8px 0 0;font-size:14px">${esc(h.room)}</p>`:""}
+      ${h.refs||h.phone?refsHTML([...(h.refs||[]),...(h.phone?[["Hotel phone",h.phone]]:[])]):""}
+      ${h.cancel?`<div class="note">${esc(h.cancel)}</div>`:""}
+      ${!h.refs?`<div class="note">No booking voucher added yet.</div>`:""}
+      <div class="addr">${esc(h.addr)}</div>
+      ${actionsFor(hotelTarget(h))}
+      ${nearHTML(h.near)}
+    </div>`}).join("");
+}
+function renderTransport(){
+  $("#transList").innerHTML=`<div class="panel"><h3>Train tickets</h3><div class="sub">Pick your name to highlight your seat on both trains.</div>${mePicker()}
+    <ul class="tips"><li>Your passport is your train ticket. Keep it on you and have it ready at the gate.</li><li>Gates close a few minutes before departure, so be at the gate early.</li><li>Both trains are 1st Class, Car 01.</li></ul></div>`+LEGS.map(l=>`<div class="panel">
+    <div class="tags" style="margin:0 0 6px"><span class="tag ${l.kind==="Train"?"tix":""}">${l.kind}</span><span class="tag">${esc(l.date)}</span>${l.carrier==="Tickets bought"?'<span class="tag tix">Tickets bought</span>':""}</div>
+    <h3>${esc(l.code)}${l.carrier!=="Tickets bought"?` <span style="font-weight:400;color:var(--muted)">· ${esc(l.carrier)}</span>`:""}</h3>
+    <div class="leg"><div class="end"><b>${l.fromT}</b><span>${esc(l.from)}</span></div><div class="mid"><hr>${l.kind==="Train"?"rail":"air"}<hr></div><div class="end r"><b>${l.toT||"—"}</b><span>${esc(l.to)}</span></div></div>
+    <div class="note">${esc(l.note)}</div>
+    ${l.seats?`<div class="sectionlabel" style="margin-top:12px">Seats · Car 01</div>${seatsHTML(l.seats)}`:""}
+    ${l.refs?refsHTML(l.refs):""}
+    ${l.kind==="Flight"?`<div class="actions"><button class="btn" type="button" data-act="copytext" data-text="${esc(l.code.split(" ")[0])}">${IC.copy}Copy flight no.</button></div>`:""}
+  </div>`).join("");
+}
+function renderEats(){
+  const res=[];
+  DAYS.forEach((d,i)=>d.stops.forEach(s=>{ if((s.tags||[]).some(t=>t.k==="res")) res.push({s,i,d}); }));
+  $("#resList").innerHTML=res.map(({s,i,d})=>{const tm=fmtTime(s.t); return `<div class="panel"><div class="tags" style="margin:0 0 6px"><span class="tag res">${esc(s.tags.find(t=>t.k==="res").v)}</span><span class="tag">Day ${i+1} · ${fmtD(d.d)} · ${tm.h}${tm.ap}</span></div><h3>${esc(s.title)}</h3>${s.zh?`<div class="sub">${esc(s.zh)}</div>`:""}${s.refs?refsHTML(s.refs):""}${actionsFor(placeTarget(s))}<div class="actions" style="margin-top:8px"><a class="btn" href="#day-${i+1}">Open Day ${i+1} →</a></div></div>`}).join("");
+  $("#foodGrid").innerHTML=FOODS.map(f=>`<button class="food" type="button" data-act="bigtext" data-text="${esc(f.zh)}" data-sub="${esc(f.en)}"><b>${esc(f.zh)}</b><span>${esc(f.en)}</span></button>`).join("");
+}
+function renderPhrases(){
+  $("#phraseList").innerHTML=PHRASES.map(p=>`<div class="panel"><div class="phr"><div><b>${esc(p.zh)}</b><span>${esc(p.py)} · ${esc(p.en)}</span></div></div><div class="actions"><button class="btn primary" type="button" data-act="bigtext" data-text="${esc(p.zh)}" data-sub="${esc(p.en)}">Show</button><button class="btn" type="button" data-act="copytext" data-text="${esc(p.zh)}">${IC.copy}Copy</button></div></div>`).join("");
+}
+
+/* ---------- link checker ---------- */
+let CHK={}; try{ CHK=JSON.parse(localStorage.getItem("gz-chk")||"{}"); }catch(e){}
+function saveChk(){ try{ localStorage.setItem("gz-chk",JSON.stringify(CHK)); }catch(e){} }
+function allTargets(){
+  const out=[], seen=new Set();
+  const add=(label,t)=>{ if(!t||!t.q) return; const k=t.q+"|"+t.city; if(seen.has(k)) return; seen.add(k); out.push({label,t,k}); };
+  Object.values(HOTELS).forEach(h=>add("Stay",hotelTarget(h)));
+  DAYS.forEach((d,i)=>d.stops.forEach(s=>{
+    if(s.type!=="stay") add(`Day ${i+1}`,placeTarget(s));
+    (s.places||[]).forEach(p=>add(`Day ${i+1}`,{name:p.name,zh:p.zh||"",addr:p.addr||"",q:p.q||p.zh||p.name,city:p.city||""}));
+    (s.near||[]).forEach(p=>add(`Day ${i+1} · nearby`,{name:p.name,zh:p.zh,addr:"",q:p.q,city:p.city}));
+  }));
+  return out;
+}
+function renderCheck(){
+  REG.length=0;
+  const items=allTargets(); const ok=items.filter(x=>CHK[x.k]==="ok").length, bad=items.filter(x=>CHK[x.k]==="bad").length;
+  $("#checkSummary").textContent=`${items.length} places · ${ok} correct · ${bad} wrong · ${items.length-ok-bad} not checked`;
+  $("#checkList").innerHTML=items.map(({label,t,k})=>`<div class="panel chk ${CHK[k]||""}">
+    <div class="tags" style="margin:0 0 6px"><span class="tag">${esc(label)}</span>${CHK[k]==="ok"?'<span class="tag tix">Correct</span>':CHK[k]==="bad"?'<span class="tag res">Wrong place</span>':""}</div>
+    <h3>${esc(t.name)}</h3><div class="sub">Searches: ${esc(t.q)}</div>
+    <div class="actions">${mapLinks(t.q,t.city)}</div>
+    <div class="actions"><button class="btn" type="button" data-act="mark" data-k="${esc(k)}" data-v="ok">✓ Right place</button><button class="btn" type="button" data-act="mark" data-k="${esc(k)}" data-v="bad">✗ Wrong place</button></div>
+  </div>`).join("");
+}
+/* ---------- overlay ---------- */
+let ovText="", lastFocus=null;
+function openOverlay({ask,big,addr,en,copyText}){
+  lastFocus=document.activeElement;
+  $("#ovAsk").textContent=ask||""; $("#ovAsk").style.display=ask?"":"none";
+  $("#ovBig").textContent=big||""; $("#ovAddr").textContent=addr||""; $("#ovEn").textContent=en||"";
+  ovText=copyText||big||""; $("#overlay").classList.add("show"); $("#ovClose").focus();
+}
+function closeOverlay(){ $("#overlay").classList.remove("show"); if(lastFocus) lastFocus.focus(); }
+$("#ovClose").onclick=closeOverlay;
+$("#ovCopy").onclick=()=>copy(ovText,"Copied");
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeOverlay(); });
+
+/* ---------- events ---------- */
+document.addEventListener("click",e=>{
+  const ml=e.target.closest("a[data-copyq]"); if(ml){ const t=ml.dataset.copyq; try{ navigator.clipboard.writeText(t).then(()=>toast("Name copied, paste in Amap if needed")).catch(()=>{}); }catch(err){} return; }
+  const chip=e.target.closest(".daychip"); if(chip){ setDay(+chip.dataset.day,false); return; }
+  const step=e.target.closest("[data-step]"); if(step){ setDay(curDay+ +step.dataset.step,true); return; }
+  const head=e.target.closest(".card-h"); if(head && !head.disabled){ const c=head.parentElement; c.classList.toggle("open"); head.setAttribute("aria-expanded",c.classList.contains("open")); return; }
+  const b=e.target.closest("[data-act]"); if(!b) return;
+  const act=b.dataset.act; const tg=REG[+b.dataset.id];
+  if(act==="expandall"){ const cards=[...document.querySelectorAll("#dayBody .card")].filter(c=>c.querySelector(".card-b")); const anyClosed=cards.some(c=>!c.classList.contains("open")); cards.forEach(c=>{c.classList.toggle("open",anyClosed); c.querySelector(".card-h").setAttribute("aria-expanded",anyClosed);}); b.textContent=anyClosed?"Collapse all":"Expand all"; }
+  else if(act==="copyaddr"){ copy(tg.addrZh?`${tg.addrZh}\n${tg.addr}`.trim():`${tg.name}\n${tg.addr}`,"Address copied"); }
+  else if(act==="copyname"){ copy(tg.zh?`${tg.zh.split(" · ")[0]} (${tg.name})`:tg.name,"Name copied"); }
+  else if(act==="driver"){ const zhName=tg.zh?tg.zh.split(" · ").join(" "):""; openOverlay({ask:"师傅，请带我去这里",big:zhName||tg.name,addr:tg.addrZh||(zhName?"":tg.addr),en:[zhName?tg.name:"",tg.addr&&(tg.addrZh||zhName)?tg.addr:""].filter(Boolean).join(" · "),copyText:[zhName,tg.addrZh,tg.name,tg.addr].filter(Boolean).join("\n")}); }
+  else if(act==="bigtext"){ openOverlay({ask:"",big:b.dataset.text,addr:"",en:b.dataset.sub||"",copyText:b.dataset.text}); }
+  else if(act==="setme"){ ME=b.dataset.name===ME?null:b.dataset.name; try{ ME?localStorage.setItem("gz-me",ME):localStorage.removeItem("gz-me"); }catch(e){} const y=window.scrollY; if($("#v-days").classList.contains("active")){ const open=[...document.querySelectorAll("#dayBody .card")].map(c=>c.classList.contains("open")); renderDay(); document.querySelectorAll("#dayBody .card").forEach((c,i)=>{ if(open[i]){c.classList.add("open");c.querySelector(".card-h").setAttribute("aria-expanded","true");} }); } else renderTransport(); window.scrollTo({top:y}); toast(ME?`Showing ${ME}'s seats`:"Seat highlight off"); }
+  else if(act==="mark"){ const k=b.dataset.k; CHK[k]=CHK[k]===b.dataset.v?undefined:b.dataset.v; saveChk(); const y=window.scrollY; renderCheck(); window.scrollTo({top:y}); }
+  else if(act==="resetcheck"){ CHK={}; saveChk(); renderCheck(); }
+  else if(act==="copyreport"){ const bad=allTargets().filter(x=>CHK[x.k]==="bad").map(x=>`${x.label}: ${x.t.name} (searched ${x.t.q})`); copy(bad.length?"Wrong map pins:\n"+bad.join("\n"):"All checked map links look right.", bad.length?`${bad.length} wrong ones copied`:"Nothing marked wrong"); }
+  else if(act==="copytext"){ copy(b.dataset.text,"Copied"); }
+});
+
+/* ---------- routing ---------- */
+const VIEWS=["days","stays","transport","eats","help","check"];
+function route(){
+  const h=(location.hash||"").slice(1);
+  let v="days"; const m=h.match(/^day-(\d)$/);
+  if(VIEWS.includes(h)) v=h;
+  document.querySelectorAll("section.view").forEach(s=>s.classList.toggle("active",s.id==="v-"+v));
+  document.querySelectorAll("nav.tabs a").forEach(a=>{ if(a.dataset.v===v||(v==="check"&&a.dataset.v==="help")) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
+  if(v==="days"){ if(m) { curDay=Math.min(DAYS.length,+m[1])-1; } renderStrip(); renderDay(); }
+  if(v==="stays") renderStays();
+  if(v==="transport") renderTransport();
+  if(v==="eats") renderEats();
+  if(v==="help") renderPhrases();
+  if(v==="check") renderCheck();
+  window.scrollTo({top:0});
+}
+window.addEventListener("hashchange",route);
+
+/* ---------- status line ---------- */
+function updateStatus(){
+  const {n,idx}=tripState(); const dep=Date.parse("2026-11-17T03:15:00+08:00"); const end="2026-11-24";
+  let txt;
+  if(n.ms<dep){ const diff=dep-n.ms; const d=Math.floor(diff/864e5), h=Math.floor(diff%864e5/36e5), m=Math.floor(diff%36e5/6e4);
+    txt= d>0?`At Changi in ${d}d ${h}h`:`At Changi in ${h}h ${m}m · 3:15am`; }
+  else if(idx>=0) txt=`Day ${idx+1} of 8 · ${DAYS[idx].city}`;
+  else if(n.date>end) txt="Trip complete · welcome home";
+  else txt="Trip itinerary";
+  $("#statusText").textContent=txt;
+}
+
+/* ---------- init ---------- */
+(function init(){
+  const {idx}=tripState(); curDay=idx>=0?idx:0;
+  updateStatus(); setInterval(()=>{ updateStatus(); if($("#v-days").classList.contains("active") && !$("#overlay").classList.contains("show")){ /* refresh "now" marker quietly */ const open=[...document.querySelectorAll("#dayBody .card.open")].length; if(!open) renderDay(); } },60000);
+  route();
+})();
+</script>
+</body>
+</html>
